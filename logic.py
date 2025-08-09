@@ -68,8 +68,8 @@ class Pokemon:
             self.name = await self.get_name()  # Retrieving a name if it has not yet been uploaded
             self.base_experience = await self.get_base_experience()
             self.abilities = await self.get_abilities()
-            rarity = "🌟RARE🌟" if self.rare else "Common"
             self.types = await self.get_types()
+        rarity = "🌟RARE🌟" if self.rare else "Common"
         return f"The name of your Pokémon: {self.name} ({rarity})\nLevel: {self.level}\nBase Experience: {self.base_experience}\nAbilities: {self.abilities}\nTypes: {self.types}\nHP: {self.hp}\nPower: {self.power}"# Returning the string with the Pokémon's name
 
     async def show_img(self):
