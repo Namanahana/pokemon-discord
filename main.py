@@ -57,15 +57,6 @@ async def attack(ctx):
     else:
         await ctx.send("Tentukan pengguna yang ingin Kalian serang dengan menyebut mereka.")  # Meminta untuk menyebutkan pengguna untuk menyerang
 
-@bot.command()
-async def feed(ctx):
-    trainer = str(ctx.author.id)
-    if trainer in Pokemon.pokemons:
-        p = Pokemon.pokemons[trainer]
-        result = p.feed()
-        await ctx.send(result)
-    else:
-        await ctx.send("You don't have a Pokémon yet!")
 
 @bot.command(name='info')
 async def info_handler(ctx):
@@ -75,6 +66,16 @@ async def info_handler(ctx):
         await ctx.send(info_text)
     else:
         await ctx.send("Kamu belum memiliki Pokémon, coba dulu dapatkan ya!")
+
+@bot.command()
+async def feed(ctx):
+    author = ctx.author.name
+    if author in Pokemon.pokemons:
+        pokemon = Pokemon.pokemons[author]
+        result = await pokemon.feed()
+        await ctx.send(result)
+    else:
+        await ctx.send("Belum ada pokemon coba !go")
 
 
 # Running the bot
