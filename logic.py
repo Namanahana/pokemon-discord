@@ -1,6 +1,7 @@
 import aiohttp  # A library for asynchronous HTTP requests
 import random
 import asyncio
+from datetime import datetime, timedelta
 
 class Pokemon:
     pokemons = {}
@@ -11,44 +12,14 @@ class Pokemon:
         self.name = None
         self.abilities = None
         self.base_experience = None
-        self.level = 1
-        self.hunger = 100  # Full at start
-        self.exp = 0
-        self.rare = False
-                # Inside __init__
-        self.rare = random.random() < 0.05  # 5% chance to get rare Pokémon
         self.power = random.randint(5, 15)
         self.hp = random.randint(20, 30)
-
+        self.last_feed_time = datetime.now()
 
         if pokemon_trainer not in Pokemon.pokemons:
             Pokemon.pokemons[pokemon_trainer] = self
         else:
             self = Pokemon.pokemons[pokemon_trainer]
-
-    def feed(self, food_amount=20):
-        self.hunger = min(100, self.hunger + food_amount)
-        self.exp += food_amount // 2
-        return f"{self.name} has been fed. Hunger: {self.hunger}/100. EXP: {self.exp}"
-
-    def level_up(self):
-        level_ups = self.exp // 100
-        if level_ups > 0:
-            self.level += level_ups
-            self.exp %= 100
-            return f"{self.name} leveled up! Now at Level {self.level}!"
-        return f"{self.name} needs more EXP to level up."
-    
-    def get_achievements(self):
-        achievements = []
-        if self.level >= 5:
-            achievements.append("Level 5 Trainer 🎯")
-        if self.hunger >= 90:
-            achievements.append("Well-fed Pokémon 🍗")
-        if self.rare:
-            achievements.append("Rare Pokémon Collector 🌟")
-
-        return "Achievements: " + ", ".join(achievements) if achievements else "No achievements yet."
 
 
     async def get_name(self):
@@ -69,8 +40,7 @@ class Pokemon:
             self.base_experience = await self.get_base_experience()
             self.abilities = await self.get_abilities()
             self.types = await self.get_types()
-        rarity = "🌟RARE🌟" if self.rare else "Common"
-        return f"The name of your Pokémon: {self.name} ({rarity})\nLevel: {self.level}\nBase Experience: {self.base_experience}\nAbilities: {self.abilities}\nTypes: {self.types}\nHP: {self.hp}\nPower: {self.power}"# Returning the string with the Pokémon's name
+        return f"The name of your Pokémon: {self.name}\nBase Experience: {self.base_experience}\nAbilities: {self.abilities}\nTypes: {self.types}\nHP: {self.hp}\nPower: {self.power}"# Returning the string with the Pokémon's name
 
     async def show_img(self):
         # An asynchronous method to retrieve the URL of a pokémon image via PokeAPI
@@ -129,9 +99,30 @@ class Pokemon:
             enemy.hp = 0
             return f"@{self.pokemon_trainer} menang melawan @{enemy.pokemon_trainer}!"
         
+    async def feed(self, feed_interval = 20, hp_increase = 10 ):
+        current_time = datetime.now()  
+        delta_time = timedelta(seconds=feed_interval)  
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp += hp_increase
+            self.last_feed_time = current_time
+            return f"Kesehatan Pokemon dipulihkan. HP saat ini: {self.hp}"
+        else:
+            return f"Kalian dapat memberi makan Pokémon kalian di: {current_time+delta_time}"  
+        
 class Wizard(Pokemon):
     async def attack(self, enemy):
         return await super().attack(enemy)
+    
+    async def feed(self, feed_interval = 10, hp_increase = 10 ):
+        current_time = datetime.now()  
+        delta_time = timedelta(seconds=feed_interval)  
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp += hp_increase
+            self.last_feed_time = current_time
+            return f"Kesehatan Pokemon dipulihkan. HP saat ini: {self.hp}"
+        else:
+            return f"Kalian dapat memberi makan Pokémon kalian di: {current_time+delta_time}"  
+        
     
 class Fighter(Pokemon):
     async def attack(self, enemy):
@@ -140,6 +131,17 @@ class Fighter(Pokemon):
         hasil = await super().attack(enemy)
         self.power -= power_super
         return hasil + f"\nPetarung menggunakan serangan super dengan kekuatan:{power_super} "
+    
+    async def feed(self, feed_interval = 20, hp_increase = 20 ):
+        current_time = datetime.now()  
+        delta_time = timedelta(seconds=feed_interval)  
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp += hp_increase
+            self.last_feed_time = current_time
+            return f"Kesehatan Pokemon dipulihkan. HP saat ini: {self.hp}"
+        else:
+            return f"Kalian dapat memberi makan Pokémon kalian di: {current_time+delta_time}"  
+        
 
 async def main():
     wizard = Wizard("username1")
